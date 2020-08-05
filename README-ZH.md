@@ -13,5 +13,6 @@
   - `git clone https://github.com/CrowBlock8192/react-admin.git` 克隆远程代码
   - `cd react-admin` cd 到项目目录下
   - `git checkout -b dev origin/dev ` 生成并切换本地dev
+  - `git add .` 将更新的内容加入暂存区
   - `git commit -m "同步内容描述"` 提交要更新的内容
   - `git push origin dev` 推送dev分支到远程仓库
