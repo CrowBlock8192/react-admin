@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
-import { Row, Col, Form, Input, Button } from 'antd'
+import { Row, Col, Form, Input, Radio, Button } from 'antd'
 import Captcha from '../../components/captcha'
-import { UserOutlined, LockOutlined } from '@ant-design/icons'
+import { UserOutlined, LockOutlined, UnlockOutlined } from '@ant-design/icons'
 import './login.less'
 import logo from '../../assetes/images/logo.png'
 
@@ -9,8 +9,35 @@ import logo from '../../assetes/images/logo.png'
  * 登录组件
  */
 export default class Login extends Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      value: 1,
+      loginMethod: 0, // 0 使用密码 1 使用动态码
+    }
+  }
   onRef = (ref) => {
     this.child = ref
+  }
+  onChange = (e) => {
+    console.log('radio checked', e.target.value)
+    this.setState({
+      value: e.target.value,
+    })
+  }
+  changeLoginMethod = (e) => {
+    console.log(e)
+    let value = this.state.loginMethod
+    switch (value) {
+      case 0:
+        value = 1
+        break
+      default:
+        value = 0
+    }
+    this.setState({
+      loginMethod: value,
+    })
   }
   render() {
     const onFinish = (values) => {
@@ -18,6 +45,7 @@ export default class Login extends Component {
         console.log('Received values of form: ', values)
       }
     }
+    const loginMethod = this.state.loginMethod
     return (
       <div className="login">
         <header className="login-header">
@@ -52,28 +80,65 @@ export default class Login extends Component {
             >
               <Input
                 prefix={<UserOutlined className="site-form-item-icon" />}
+                maxLength="12"
                 placeholder="用户名"
                 bordered={false}
               />
             </Form.Item>
+            {loginMethod === 0 ? (
+              <Form.Item
+                className="login-form-item"
+                name="password"
+                rules={[
+                  {
+                    required: true,
+                    whitespace: true,
+                    message: '请输入您的密码!',
+                  },
+                ]}
+              >
+                <Input.Password
+                  prefix={<LockOutlined className="site-form-item-icon" />}
+                  maxLength="18"
+                  placeholder="登录密码"
+                  bordered={false}
+                />
+              </Form.Item>
+            ) : (
+              <Form.Item
+                className="login-form-item"
+                name="dynamicCode"
+                rules={[
+                  { required: true, message: '请输入您的动态码!' },
+                  { pattern: /[0-9]/, message: '动态码只能是数字' },
+                ]}
+              >
+                <Row gutter={8}>
+                  <Col span={14}>
+                    <Input
+                      prefix={
+                        <UnlockOutlined className="site-form-item-icon" />
+                      }
+                      maxLength="6"
+                      placeholder="请输入动态验证码"
+                      bordered={false}
+                    />
+                  </Col>
+                  <Col span={10}>
+                    <Captcha onRef={this.onRef} />
+                  </Col>
+                </Row>
+              </Form.Item>
+            )}
             <Form.Item
               className="login-form-item"
-              name="password"
-              rules={[{ required: true, message: '请输入您的密码!' }]}
+              name="remember"
+              valuePropName="checked"
             >
-              <Row gutter={8}>
-                <Col span={14}>
-                  <Input.Password
-                    prefix={<LockOutlined className="site-form-item-icon" />}
-                    type="password"
-                    placeholder="密码"
-                    bordered={false}
-                  />
-                </Col>
-                <Col span={10}>
-                  <Captcha onRef={this.onRef} />
-                </Col>
-              </Row>
+              <Radio.Group onChange={this.onChange} value={this.state.value}>
+                <Radio value={1}>记住账号</Radio>
+                {loginMethod === 0 ? <Radio value={2}>记住密码</Radio> : ''}
+              </Radio.Group>
             </Form.Item>
             <Form.Item className="login-form-item">
               <Button
@@ -84,6 +149,9 @@ export default class Login extends Component {
               >
                 登录
               </Button>
+              <p className="login-method" onClick={this.changeLoginMethod}>
+                {loginMethod === 0 ? '使用手机验证码' : '使用密码登录'}
+              </p>
             </Form.Item>
           </Form>
         </div>
